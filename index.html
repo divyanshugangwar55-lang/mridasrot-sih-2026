@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MridaSrot - Farmer Procurement & Queue Management</title>
+    
+    <!-- Google Fonts: Poppins (Headings) & Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: { 50: '#eefaf2', 100: '#d5f4df', 200: '#aee8c3', 300: '#7ad49f', 400: '#48ba78', 500: '#269f58', 600: '#1b8045', 700: '#176538', 800: '#15502e', 900: '#124227', 950: '#0b2917' },
+                        cream: { DEFAULT: '#FCFBF8', dark: '#F4F0E6' },
+                        gold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FCFBF8;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #f3f4f6;
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+            border-color: #e5e7eb;
+        }
+
+        .input-field {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            color: #111827;
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 0.75rem 1rem;
+            width: 100%;
+            margin-top: 0.375rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #269f58; /* forest-500 */
+            box-shadow: 0 0 0 3px rgba(38, 159, 88, 0.15);
+            background-color: #ffffff;
+        }
+
+        .btn-primary {
+            background-color: #1b8045; /* forest-600 */
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(27, 128, 69, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #176538; /* forest-700 */
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(27, 128, 69, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 2px 4px rgba(27, 128, 69, 0.2);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #1b8045;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            border: 2px solid #1b8045;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-outline:hover {
+            background-color: #eefaf2;
+        }
+
+        /* Glassmorphism Auth Background */
+        .auth-bg {
+            background-color: #15502e;
+            background-image: radial-gradient(circle at top right, #1b8045 0%, transparent 45%),
+                              radial-gradient(circle at bottom left, #CA8A04 0%, transparent 40%),
+                              url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .glass-card {
+            background: rgba(25, 25, 25, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-input {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .glass-input:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #48ba78;
+            box-shadow: 0 0 0 3px rgba(72, 186, 120, 0.2);
+            color: white;
+        }
+        .glass-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-container { 
+            position: relative; 
+            display: flex; 
+            margin-bottom: 1.5rem; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+        }
+        .tab-btn { 
+            flex: 1; 
+            padding: 0.75rem 0; 
+            text-align: center; 
+            font-weight: 600; 
+            transition: color 0.3s; 
+            z-index: 1; 
+            position: relative; 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            font-family: 'Poppins', sans-serif;
+        }
+        .tab-btn.active { color: #FACC15; }
+        .tab-btn:not(.active) { color: #9ca3af; }
+        .tab-btn:not(.active):hover { color: #d1d5db; }
+        .tab-indicator { 
+            position: absolute; 
+            bottom: -1px; 
+            left: 0; 
+            width: 50%; 
+            height: 2px; 
+            background-color: #FACC15; 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        /* Header Nav Links */
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: color 0.2s;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+            background: transparent;
+            border: none;
+        }
+        .nav-link.active {
+            color: white;
+            font-weight: 600;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: #FACC15;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .nav-link.active::after {
+            width: 80%;
+        }
+        .nav-link:not(.active):hover {
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        th:first-child { border-top-left-radius: 0.5rem; }
+        th:last-child { border-top-right-radius: 0.5rem; }
+
+        .hidden-view {
+            display: none !important;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .toast {
+            background-color: #124227;
+            color: #ffffff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            border-left: 4px solid #48ba78;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Custom Scrollbar for tables */
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-gradient-to-r from-forest-900 to-forest-800 p-4 sticky top-0 z-40 shadow-md border-b border-forest-700">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white flex items-center gap-2 drop-shadow-sm tracking-tight font-poppins">
+                    <i data-lucide="sprout" class="text-gold-400 w-7 h-7"></i> MridaSrot
+                </h1>
+                <p class="text-xs md:text-sm text-forest-100 mt-1 font-medium" data-i18n="app_subtitle">Smart Slot Booking for Farmer Crop Procurement</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <nav class="flex gap-2">
+                    <button id="btn-farmer-view" class="nav-link active" onclick="switchView('farmer')" data-i18n="nav_farmer">Farmer View</button>
+                    <button id="btn-admin-view" class="nav-link" onclick="switchView('admin')" data-i18n="nav_admin">Admin View</button>
+                </nav>
+                <div class="w-px h-6 bg-forest-600 mx-1"></div>
+                <button onclick="toggleLanguage()" class="flex items-center gap-2 text-forest-50 font-semibold border border-forest-500 rounded-full px-4 py-1.5 text-sm hover:bg-forest-700 hover:border-forest-400 transition-colors bg-forest-800 shadow-sm">
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                    <span id="lang-toggle-text">EN / हिं</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full flex-grow flex flex-col">
+
+        <section id="view-farmer" class="w-full flex-grow flex flex-col">
+            
+            <!-- Language Selection Screen -->
+            <div id="lang-selection-wrapper" class="auth-bg w-full flex-grow flex items-center justify-center py-12 px-4">
+                <div class="glass-card rounded-2xl p-10 relative z-10 text-center max-w-sm w-full fade-in-up">
+                    <div class="mx-auto bg-white/10 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-lg border border-white/10">
+                        <i data-lucide="globe-2" class="w-10 h-10 text-gold-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-8 text-white font-poppins">Choose Language <br><span class="text-gold-400 text-lg mt-2 block font-normal">भाषा चुनें</span></h2>
+                    <button onclick="selectLanguage('en')" class="btn-primary mb-4 text-lg py-3.5 shadow-xl shadow-forest-900/30">English</button>
+                    <button onclick="selectLanguage('hi')" class="btn-primary text-lg py-3.5 bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 text-forest-50 shadow-xl">हिंदी (Hindi)</button>
+                </div>
+            </div>
+
+            <div id="farmer-auth-wrapper" class="hidden-view auth-bg w-full flex-grow flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
+                
+                <div class="max-w-4xl mx-auto mb-8 bg-cream border border-gold-200 text-forest-900 text-sm px-5 py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-3 relative z-10 mx-4">
+                    <i data-lucide="info" class="w-5 h-5 text-gold-600 flex-shrink-0"></i>
+                    <span data-i18n="stat_1" class="font-medium">India loses ~₹1.53 lakh crore worth of food every year to post-harvest losses (NABCONS, 2022)</span>
+                </div>
+
+                <div id="farmer-auth" class="w-full max-w-md relative z-10">
+                    
+                    <div class="glass-card rounded-2xl p-8 md:p-10 fade-in-up">
+                        
+                        <div class="text-center mb-8">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 mb-4 shadow-lg border border-white/10 rotate-3">
+                                <i data-lucide="tractor" class="w-8 h-8 text-gold-400 -rotate-3"></i>
+                            </div>
+                            <p class="text-forest-100 font-medium text-sm md:text-base px-4" data-i18n="tagline">Book your slot. Skip the wait. Get paid on time.</p>
+                        </div>
+
+                        <div class="tab-container">
+                            <button id="tab-login" class="tab-btn active" onclick="toggleAuth('login')" data-i18n="tab_login">Login</button>
+                            <button id="tab-register" class="tab-btn" onclick="toggleAuth('register')" data-i18n="tab_register">Register</button>
+                            <div id="tab-indicator" class="tab-indicator"></div>
+                        </div>
+
+                        <div id="form-login">
+                            <h2 class="text-2xl font-bold mb-6 text-white" data-i18n="login_title">Farmer Login</h2>
+                            <form onsubmit="handleLogin(event)">
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="name_label">Full Name</label>
+                                <input type="text" id="login-name" class="input-field glass-input" data-i18n-placeholder="name_placeholder" placeholder="e.g., Ram Singh" required value="Ram Singh">
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="farmer_id_label">Farmer ID</label>
+                                <input type="text" class="input-field glass-input" data-i18n-placeholder="farmer_id_placeholder" placeholder="e.g., FID-12345" required value="FID-20458">
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="aadhar_label">Aadhar Number</label>
+                                <input type="text" class="input-field glass-input" data-i18n-placeholder="aadhar_placeholder" placeholder="12-digit Aadhar" required value="1234 5678 9012">
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="phone_label">Phone Number</label>
+                                <input type="tel" class="input-field glass-input" data-i18n-placeholder="phone_placeholder" placeholder="10-digit number" required value="9876543210">
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="pass_label">Password</label>
+                                <input type="password" class="input-field glass-input mb-8" data-i18n-placeholder="pass_placeholder" placeholder="••••••••" required value="password">
+
+                                <button type="submit" class="btn-primary py-3.5 text-lg shadow-xl shadow-forest-900/40">
+                                    <span data-i18n="btn_login">Login</span>
+                                    <i data-lucide="arrow-right" class="w-5 h-5 ml-1"></i>
+                                </button>
+                                <p class="text-xs text-forest-200 mt-5 text-center flex items-center justify-center gap-1.5 opacity-80">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                                    <span data-i18n="trust_msg">Your data is safe and used only for procurement scheduling</span>
+                                </p>
+                            </form>
+                            <p class="text-[11px] text-forest-300/60 mt-4 text-center font-medium uppercase tracking-wider" data-i18n="dummy_msg">Use dummy data to test prototype</p>
+                        </div>
+
+                        <div id="form-register" class="hidden-view">
+                            <h2 class="text-2xl font-bold mb-6 text-white" data-i18n="reg_title">New Farmer Registration</h2>
+                            <form onsubmit="handleRegister(event)">
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="name_label">Full Name</label>
+                                <input type="text" class="input-field glass-input" data-i18n-placeholder="name_placeholder" placeholder="e.g., Ram Singh" required>
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="phone_label">Phone Number</label>
+                                <input type="tel" class="input-field glass-input" data-i18n-placeholder="phone_placeholder" placeholder="10-digit number" required>
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="pass_label">Password</label>
+                                <input type="password" class="input-field glass-input" data-i18n-placeholder="create_pass_placeholder" placeholder="Create password" required>
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="aadhar_label">Aadhar Number</label>
+                                <input type="text" class="input-field glass-input" data-i18n-placeholder="aadhar_placeholder" placeholder="12-digit Aadhar" required>
+
+                                <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="address_label">Village/Address</label>
+                                <textarea class="input-field glass-input mb-6" rows="2" data-i18n-placeholder="address_placeholder" placeholder="Your complete address" required></textarea>
+
+                                <button type="submit" class="btn-primary py-3.5 shadow-xl shadow-forest-900/40">
+                                    <span data-i18n="btn_register">Register</span>
+                                    <i data-lucide="user-plus" class="w-5 h-5 ml-1"></i>
+                                </button>
+                                <p class="text-xs text-forest-200 mt-5 text-center flex items-center justify-center gap-1.5 opacity-80">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                                    <span data-i18n="trust_msg">Your data is safe and used only for procurement scheduling</span>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="farmer-dashboard" class="hidden-view max-w-6xl mx-auto w-full p-4 md:p-8 flex-grow">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">
+                        <span data-i18n="welcome">Welcome, </span> <span id="farmer-name-display" class="text-forest-600">Ram Singh</span>
+                    </h2>
+                    <button onclick="handleLogout()" class="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 font-semibold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span data-i18n="logout">Logout</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                    <!-- Book Slot Column -->
+                    <div class="lg:col-span-1">
+                        <div class="card h-full flex flex-col relative overflow-hidden">
+                            <!-- Subtle decorative bg -->
+                            <div class="absolute -right-12 -top-12 opacity-5 pointer-events-none">
+                                <i data-lucide="calendar-plus" class="w-48 h-48"></i>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-3 pb-3 border-b border-gray-100 text-gray-900 flex items-center gap-2 relative z-10">
+                                <i data-lucide="calendar-check-2" class="w-5 h-5 text-forest-600"></i>
+                                <span data-i18n="book_slot_title">Book a Slot</span>
+                            </h3>
+                            
+                            <p class="text-xs text-forest-800/90 mb-5 bg-forest-50 p-3 rounded-xl border border-forest-100 flex items-start gap-2 leading-relaxed relative z-10">
+                                <i data-lucide="clock" class="w-4 h-4 mt-0.5 text-forest-600 flex-shrink-0"></i> 
+                                <span data-i18n="stat_2">Farmers often wait up to 36 hours in unmanaged queues — book your slot to skip that.</span>
+                            </p>
+
+                            <form onsubmit="handleBookSlot(event)" class="flex-grow relative z-10">
+                                <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="proc_centre_label">Procurement Centre</label>
+                                <div class="relative">
+                                    <i data-lucide="map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                    <select class="input-field pl-10" id="book-centre" required>
+                                        <!-- Populated by JS -->
+                                    </select>
+                                </div>
+
+                                <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="crop_type_label">Crop Type</label>
+                                <div class="relative">
+                                    <i data-lucide="leaf" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                    <select class="input-field pl-10" id="book-crop" required>
+                                        <option value="" data-i18n="select_crop">Select Crop...</option>
+                                        <option value="Wheat" data-i18n="crop_wheat">Wheat</option>
+                                        <option value="Rice" data-i18n="crop_rice">Rice (Paddy)</option>
+                                        <option value="Maize" data-i18n="crop_maize">Maize</option>
+                                        <option value="Cotton" data-i18n="crop_cotton">Cotton</option>
+                                        <option value="Sugarcane" data-i18n="crop_sugarcane">Sugarcane</option>
+                                    </select>
+                                </div>
+
+                                <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="est_qty_label">Estimated Quantity (Quintals)</label>
+                                <div class="relative">
+                                    <i data-lucide="weight" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                    <input type="number" class="input-field pl-10" data-i18n-placeholder="est_qty_placeholder" placeholder="e.g., 50" min="1" required>
+                                </div>
+
+                                <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="pref_date_label">Preferred Date</label>
+                                <div class="relative">
+                                    <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                                    <input type="date" class="input-field pl-10" id="book-date" required>
+                                </div>
+
+                                <button type="submit" class="btn-primary mt-4 w-full">
+                                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                                    <span data-i18n="btn_book_slot">Book Slot</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Lookup & Queue Tracking Column -->
+                    <div class="lg:col-span-2">
+                        <div class="card h-full flex flex-col overflow-visible bg-white relative">
+                            <h3 class="text-xl font-semibold mb-5 pb-3 border-b border-gray-100 text-gray-900 flex items-center gap-2">
+                                <i data-lucide="search" class="w-5 h-5 text-forest-600"></i>
+                                <span data-i18n="lookup_title">Mandi & Grain Lookup</span>
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <div>
+                                    <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="mandi_label">Procurement Centre (Mandi)</label>
+                                    <select class="input-field mb-0 bg-white" id="lookup-centre" onchange="renderQueueDetails()">
+                                        <!-- Populated by JS -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-700 font-semibold mb-1" data-i18n="grain_label">Grain / Crop</label>
+                                    <select class="input-field mb-0 bg-white" id="lookup-crop" onchange="renderQueueDetails()">
+                                        <option value="" data-i18n="select_crop">Select Crop...</option>
+                                        <option value="Wheat" data-i18n="crop_wheat_code">Wheat (WHT)</option>
+                                        <option value="Rice" data-i18n="crop_rice_code">Rice - Paddy (RIC)</option>
+                                        <option value="Maize" data-i18n="crop_maize_code">Maize (MAI)</option>
+                                        <option value="Cotton" data-i18n="crop_cotton_code">Cotton (COT)</option>
+                                        <option value="Sugarcane" data-i18n="crop_sugarcane_code">Sugarcane (SUG)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="lookup-results" class="flex-grow hidden">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                            
+                            <div id="lookup-empty" class="flex-grow flex flex-col items-center justify-center text-center py-12 px-6">
+                                <div class="w-20 h-20 bg-forest-50 rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="scan-search" class="w-10 h-10 text-forest-300"></i>
+                                </div>
+                                <p class="text-gray-500 text-sm font-medium max-w-sm" data-i18n="lookup_empty">Select a Mandi and Grain to view real-time queue details, collection progress, and your slot status.</p>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-gray-100">
+                                <p class="text-xs text-gray-500 flex items-center gap-2">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-gold-500 flex-shrink-0"></i> 
+                                    <span data-i18n="stat_3">Distress selling at 20% below MSP is common when crops wait too long — track your status here.</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-12 text-center text-sm font-medium text-gray-400 py-6">
+                    <p class="flex items-center justify-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4"></i> 
+                        <span data-i18n="stat_4">India loses over ₹44,000 Cr annually in post-harvest agricultural waste.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin" class="hidden-view w-full flex-grow flex flex-col">
+            
+            <div id="admin-auth-wrapper" class="auth-bg w-full flex-grow flex items-center justify-center py-12 px-4 relative overflow-hidden">
+                <div id="admin-auth" class="w-full max-w-md relative z-10">
+                    
+                    <div class="glass-card rounded-2xl p-8 md:p-10 fade-in-up">
+                        
+                        <div class="text-center mb-8">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 mb-4 shadow-lg border border-white/10">
+                                <i data-lucide="shield-check" class="w-8 h-8 text-gold-400"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white font-poppins" data-i18n="admin_login_title">Admin Portal Login</h2>
+                        </div>
+
+                        <form onsubmit="handleAdminLogin(event)">
+                            <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="admin_id_label">Admin ID</label>
+                            <input type="text" class="input-field glass-input" data-i18n-placeholder="admin_id_placeholder" placeholder="e.g., ADM-1001" required value="ADM-1001">
+
+                            <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="name_label">Name</label>
+                            <input type="text" class="input-field glass-input" data-i18n-placeholder="name_placeholder" placeholder="e.g., Priya Sharma" required value="Priya Sharma">
+
+                            <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="admin_username_label">Username</label>
+                            <input type="text" class="input-field glass-input" data-i18n-placeholder="admin_username_placeholder" placeholder="e.g., priya.admin" required value="priya.admin">
+
+                            <label class="block text-sm text-forest-100 font-medium mb-1.5" data-i18n="admin_pass_label">Password</label>
+                            <input type="password" class="input-field glass-input mb-8" data-i18n-placeholder="pass_placeholder" placeholder="••••••••" required value="admin123">
+
+                            <button type="submit" class="btn-primary py-3.5 text-lg shadow-xl shadow-forest-900/40">
+                                <i data-lucide="lock-keyhole" class="w-5 h-5 mr-1"></i>
+                                <span data-i18n="btn_admin_login">Secure Login</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-dashboard" class="hidden-view max-w-6xl mx-auto w-full p-4 md:p-8 flex-grow">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 pb-4 border-b border-gray-200 gap-4">
+                    <h2 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                        <i data-lucide="layout-dashboard" class="w-8 h-8 text-forest-600"></i>
+                        <span data-i18n="admin_title">System Administration</span>
+                    </h2>
+                    <button onclick="handleAdminLogout()" class="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 font-semibold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span data-i18n="logout">Logout</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <div class="space-y-8">
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-5 text-gray-900 flex items-center gap-2">
+                                <i data-lucide="building-2" class="w-5 h-5 text-forest-600"></i>
+                                <span data-i18n="add_centre_title">Add Procurement Centre</span>
+                            </h3>
+                            <form onsubmit="handleAddCentre(event)">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="centre_name_label">Centre Name</label>
+                                        <input type="text" class="input-field mb-2" data-i18n-placeholder="centre_name_placeholder" placeholder="e.g., APMC Mandi Phase 2" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="loc_label">Location/District</label>
+                                        <input type="text" class="input-field mb-2" data-i18n-placeholder="loc_placeholder" placeholder="e.g., Lucknow" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="cap_label">Daily Capacity (Qtl)</label>
+                                        <input type="number" class="input-field mb-2" data-i18n-placeholder="cap_placeholder" placeholder="e.g., 5000" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-outline mt-3 flex items-center justify-center gap-2">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span data-i18n="btn_add_centre">Add Centre</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-5 text-gray-900 flex items-center gap-2">
+                                <i data-lucide="calendar-plus" class="w-5 h-5 text-forest-600"></i>
+                                <span data-i18n="open_slots_title">Open Booking Slots</span>
+                            </h3>
+                            <form onsubmit="handleAddSlot(event)">
+                                <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="select_centre_admin">Select Centre</label>
+                                <select class="input-field mb-4" id="admin-slot-centre" required>
+                                    <!-- Populated by JS -->
+                                </select>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="date_label">Date</label>
+                                        <input type="date" class="input-field mb-2" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="time_label">Time Window</label>
+                                        <select class="input-field mb-2" required>
+                                            <option value="08:00 AM - 12:00 PM">08:00 AM - 12:00 PM</option>
+                                            <option value="12:00 PM - 04:00 PM">12:00 PM - 04:00 PM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-outline mt-3 flex items-center justify-center gap-2">
+                                    <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                                    <span data-i18n="btn_open_slot">Open Slot</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+
+                        <div class="card">
+                            <h3 class="text-lg font-semibold mb-5 text-gray-900 flex items-center gap-2">
+                                <i data-lucide="sliders-horizontal" class="w-5 h-5 text-forest-600"></i>
+                                <span data-i18n="update_status_title">Update Batch Status</span>
+                            </h3>
+                            <form onsubmit="handleUpdateStatus(event)" class="flex flex-col gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="batch_id_label">Batch ID</label>
+                                    <input type="text" class="input-field mb-0" id="update-batch-id" data-i18n-placeholder="batch_id_placeholder" placeholder="e.g., B-1042" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="new_status_label">New Status</label>
+                                    <select class="input-field mb-0" id="update-status-val" required>
+                                        <option value="submitted" data-i18n="opt_submitted">Submitted (Awaiting Schedule)</option>
+                                        <option value="scheduled" data-i18n="opt_scheduled">Scheduled (Slot Confirmed)</option>
+                                        <option value="in_queue" data-i18n="opt_in_queue">In Queue (Arrived at Centre)</option>
+                                        <option value="completed" data-i18n="opt_completed">Completed (Procured)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-outline mt-1 flex items-center justify-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    <span data-i18n="btn_update_status">Update Status</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="card border-green-500 border-2 bg-gradient-to-br from-green-50 to-white">
+                            <h3 class="text-lg font-semibold mb-5 text-gray-900 flex items-center gap-2">
+                                <div class="p-1.5 bg-green-100 rounded-full text-green-700">
+                                    <i data-lucide="banknote" class="w-4 h-4"></i>
+                                </div>
+                                <span data-i18n="record_payment_title">Record Payment</span>
+                            </h3>
+                            <form onsubmit="handleRecordPayment(event)" class="flex flex-col gap-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="name_label">Farmer Name</label>
+                                        <input type="text" id="pay-farmer-name" class="input-field mb-0 bg-white" data-i18n-placeholder="name_placeholder" placeholder="e.g., Ram Singh" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="farmer_id_label">Farmer ID</label>
+                                        <input type="text" id="pay-farmer-id" class="input-field mb-0 bg-white" data-i18n-placeholder="farmer_id_placeholder" placeholder="e.g., FID-12345" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="aadhar_label">Aadhaar Number</label>
+                                        <input type="text" id="pay-aadhaar" class="input-field mb-0 bg-white" data-i18n-placeholder="aadhar_placeholder" placeholder="12-digit Aadhaar" maxlength="12" pattern="[0-9]{12}" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="batch_id_label">Batch ID</label>
+                                        <input type="text" id="pay-batch-id" class="input-field mb-0 bg-white" data-i18n-placeholder="batch_id_placeholder" placeholder="e.g., B-1042" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="amount_label">Amount (₹)</label>
+                                        <input type="number" id="pay-amount" class="input-field mb-0 bg-white" data-i18n-placeholder="amount_placeholder" placeholder="e.g., 45000" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 font-bold uppercase tracking-wider mb-1" data-i18n="utr_label">Transaction Ref / UTR</label>
+                                        <input type="text" id="pay-utr" class="input-field mb-0 bg-white" data-i18n-placeholder="utr_placeholder" placeholder="e.g., UBIN000... " required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary bg-green-600 hover:bg-green-700 mt-2 shadow-green-600/20">
+                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                    <span data-i18n="btn_mark_paid">Mark as Paid</span>
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card mt-8 overflow-hidden">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 pb-4 border-b border-gray-100 gap-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <i data-lucide="table-2" class="w-5 h-5 text-forest-600"></i>
+                            <span data-i18n="admin_table_title">Centre Load & Active Slots</span>
+                        </h3>
+                        <div class="relative w-full sm:w-auto">
+                            <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            <select class="input-field w-full sm:w-auto mb-0 py-2 pl-10 pr-8 text-sm bg-white" id="admin-filter-centre" onchange="renderAdminSlots()">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto table-container pb-2">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="th_centre">Centre</th>
+                                    <th data-i18n="th_date">Date</th>
+                                    <th data-i18n="th_time">Time Window</th>
+                                    <th data-i18n="th_booked">Booked / Max</th>
+                                    <th data-i18n="th_status">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-slots-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal for Cancelling -->
+    <div id="cancel-modal" class="hidden-view fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center fade-in-up">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center border border-gray-100">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 text-red-500">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+            </div>
+            <p class="text-gray-900 font-semibold mb-8 text-lg" data-i18n="confirm_cancel_msg">Are you sure you want to cancel this slot?</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="hideCancelConfirm()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-semibold transition-colors" data-i18n="btn_no">No</button>
+                <button id="btn-confirm-cancel" class="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 font-semibold transition-colors shadow-lg shadow-red-500/30" data-i18n="btn_yes">Yes, Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        let currentView = 'farmer'; 
+        let isLoggedIn = false;
+        let isAdminLoggedIn = false;
+        let hasSelectedLang = false;
+        let currentLang = 'en';
+
+        // Helper to refresh Lucide Icons when DOM updates
+        const refreshIcons = () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        };
+
+        const translations = {
+            en: {
+                app_subtitle: "Smart Slot Booking for Farmer Crop Procurement",
+                nav_farmer: "Farmer View",
+                nav_admin: "Admin View",
+                
+                stat_1: "India loses ~₹1.53 lakh crore worth of food every year to post-harvest losses (NABCONS, 2022)",
+                tagline: "Book your slot. Skip the wait. Get paid on time.",
+                tab_login: "Login",
+                tab_register: "Register",
+                login_title: "Farmer Login",
+                phone_label: "Phone Number",
+                phone_placeholder: "10-digit number",
+                pass_label: "Password",
+                pass_placeholder: "••••••••",
+                btn_login: "Login",
+                trust_msg: "Your data is safe and used only for procurement scheduling",
+                dummy_msg: "Use dummy data to test prototype",
+                reg_title: "New Farmer Registration",
+                name_label: "Full Name",
+                name_placeholder: "e.g., Ram Singh",
+                create_pass_placeholder: "Create password",
+                farmer_id_label: "Farmer ID",
+                farmer_id_placeholder: "e.g., FID-12345",
+                aadhar_label: "Aadhar Number",
+                aadhar_placeholder: "12-digit Aadhar",
+                address_label: "Village/Address",
+                address_placeholder: "Your complete address",
+                btn_register: "Register",
+                
+                welcome: "Welcome, ",
+                logout: "Logout",
+                book_slot_title: "Book a Slot",
+                stat_2: "Farmers often wait up to 36 hours in unmanaged queues — book your slot to skip that.",
+                proc_centre_label: "Procurement Centre",
+                select_centre: "Select Centre...",
+                crop_type_label: "Crop Type",
+                select_crop: "Select Crop...",
+                est_qty_label: "Estimated Quantity (Quintals)",
+                est_qty_placeholder: "e.g., 50",
+                pref_date_label: "Preferred Date",
+                btn_book_slot: "Book Slot",
+                lookup_title: "Mandi & Grain Lookup",
+                mandi_label: "Procurement Centre (Mandi)",
+                grain_label: "Grain / Crop",
+                lookup_empty: "Select a Mandi and Grain to view real-time queue details, collection progress, and your slot status.",
+                stat_3: "Distress selling at 20% below MSP is common when crops wait too long — track your status here.",
+                stat_4: "India loses over ₹44,000 Cr annually in post-harvest agricultural waste.",
+                
+                crop_wheat: "Wheat", crop_rice: "Rice (Paddy)", crop_maize: "Maize", crop_cotton: "Cotton", crop_sugarcane: "Sugarcane",
+                crop_wheat_code: "Wheat (WHT)", crop_rice_code: "Rice - Paddy (RIC)", crop_maize_code: "Maize (MAI)", crop_cotton_code: "Cotton (COT)", crop_sugarcane_code: "Sugarcane (SUG)",
+
+                admin_login_title: "Admin Portal Login",
+                admin_id_label: "Admin ID",
+                admin_id_placeholder: "e.g., ADM-1001",
+                admin_username_label: "Username",
+                admin_username_placeholder: "e.g., priya.admin",
+                admin_pass_label: "Password",
+                btn_admin_login: "Secure Login",
+                admin_title: "System Administration",
+                add_centre_title: "Add Procurement Centre",
+                centre_name_label: "Centre Name",
+                centre_name_placeholder: "e.g., APMC Mandi Phase 2",
+                loc_label: "Location/District",
+                loc_placeholder: "e.g., Lucknow",
+                cap_label: "Daily Capacity (Qtl)",
+                cap_placeholder: "e.g., 5000",
+                btn_add_centre: "Add Centre",
+                open_slots_title: "Open Booking Slots",
+                select_centre_admin: "Select Centre",
+                date_label: "Date",
+                time_label: "Time Window",
+                btn_open_slot: "Open Slot",
+                update_status_title: "Update Batch Status",
+                batch_id_label: "Batch ID",
+                batch_id_placeholder: "e.g., B-1042",
+                new_status_label: "New Status",
+                btn_update_status: "Update Status",
+                record_payment_title: "Record Payment",
+                amount_label: "Amount (₹)",
+                amount_placeholder: "e.g., 45000",
+                utr_label: "Transaction Ref / UTR",
+                utr_placeholder: "e.g., UBIN000... ",
+                btn_mark_paid: "Mark as Paid",
+                admin_table_title: "Centre Load & Active Slots",
+                all_centres: "All Centres",
+                th_centre: "Centre", th_date: "Date", th_time: "Time Window", th_booked: "Booked / Max", th_status: "Status",
+                
+                total_in_queue: "Total in Queue",
+                current_serving_pos: "Current Serving Pos.",
+                your_position: "Your Position",
+                crop_status: "Crop Status",
+                today_progress: "Today's Collection Progress",
+                payments_pending: "Payments Pending",
+                your_payment: "Your Payment",
+                qty_collected_today: "{booked} / {max} quintals collected today",
+                no_collection_today: "No collections scheduled for today.",
+                not_booked_yet: "You haven't booked a slot for <strong>{centre}</strong> and <strong>{crop}</strong> yet.",
+                book_one_left: "Book one on the left to track your position.",
+                
+                status_submitted: "Submitted", status_scheduled: "Scheduled", status_in_queue: "In Queue", status_completed: "Completed", status_paid: "Paid", status_pending: "Pending", status_cancelled: "Cancelled",
+                status_full: "FULL", status_available: "AVAILABLE",
+                opt_submitted: "Submitted (Awaiting Schedule)", opt_scheduled: "Scheduled (Slot Confirmed)", opt_in_queue: "In Queue (Arrived at Centre)", opt_completed: "Completed (Procured)",
+                
+                toast_reg_success: "Registration details submitted. Please login.",
+                toast_book_success: "Slot booking request submitted successfully!",
+                toast_centre_added: "New Procurement Centre ({name}) added successfully.",
+                toast_invalid_centre: "Invalid centre selected.",
+                toast_slot_opened: "New booking slots opened for {name}.",
+                toast_batch_updated: "Batch {id} status successfully updated to {status}.",
+                toast_batch_not_found: "Error: Batch ID {id} not found.",
+                toast_batch_not_completed: "Error: Batch {id} must be 'completed' before payment. Current status: {status}.",
+                toast_payment_recorded: "Payment of ₹{amount} recorded for Batch {id}.",
+                toast_slot_cancelled: "Booking {id} has been cancelled.",
+                
+                confirm_cancel_msg: "Are you sure you want to cancel this slot?",
+                btn_yes: "Yes, Cancel",
+                btn_no: "No",
+                cancel_slot: "Cancel Slot",
+                
+                Today: "Today", Tomorrow: "Tomorrow",
+                
+                step_submitted: "Submitted", step_scheduled: "Scheduled", step_inqueue: "In Queue", step_procured: "Procured"
+            },
+            hi: {
+                app_subtitle: "किसान फसल खरीद के लिए स्मार्ट स्लॉट बुकिंग",
+                nav_farmer: "किसान दृश्य",
+                nav_admin: "एडमिन दृश्य",
+                stat_1: "भारत में फसल कटाई के बाद हर साल लगभग ₹1.53 लाख करोड़ का नुकसान होता है (NABCONS, 2022)",
+                tagline: "अपना स्लॉट बुक करें। कतार से बचें। समय पर भुगतान पाएं।",
+                tab_login: "लॉगिन",
+                tab_register: "रजिस्टर",
+                login_title: "किसान लॉगिन",
+                phone_label: "फ़ोन नंबर",
+                phone_placeholder: "10-अंकों का नंबर",
+                pass_label: "पासवर्ड",
+                pass_placeholder: "••••••••",
+                btn_login: "लॉगिन करें",
+                trust_msg: "आपका डेटा सुरक्षित है और केवल खरीद शेड्यूलिंग के लिए उपयोग किया जाता है",
+                dummy_msg: "प्रोटोटाइप का परीक्षण करने के लिए डमी डेटा का उपयोग करें",
+                reg_title: "नया किसान पंजीकरण",
+                name_label: "पूरा नाम",
+                name_placeholder: "उदा., राम सिंह",
+                create_pass_placeholder: "पासवर्ड बनाएं",
+                farmer_id_label: "किसान आईडी",
+                farmer_id_placeholder: "उदा., FID-12345",
+                aadhar_label: "आधार नंबर",
+                aadhar_placeholder: "12-अंकों का आधार",
+                address_label: "गाँव/पता",
+                address_placeholder: "आपका पूरा पता",
+                btn_register: "रजिस्टर करें",
+                welcome: "स्वागत है, ",
+                logout: "लॉगआउट",
+                book_slot_title: "स्लॉट बुक करें",
+                stat_2: "किसान अक्सर 36 घंटे तक कतार में प्रतीक्षा करते हैं — इससे बचने के लिए अपना स्लॉट बुक करें।",
+                proc_centre_label: "खरीद केंद्र",
+                select_centre: "केंद्र चुनें...",
+                crop_type_label: "फसल का प्रकार",
+                select_crop: "फसल चुनें...",
+                est_qty_label: "अनुमानित मात्रा (क्विंटल)",
+                est_qty_placeholder: "उदा., 50",
+                pref_date_label: "पसंदीदा तिथि",
+                btn_book_slot: "स्लॉट बुक करें",
+                lookup_title: "मंडी और अनाज खोज",
+                mandi_label: "खरीद केंद्र (मंडी)",
+                grain_label: "अनाज / फसल",
+                lookup_empty: "रीयल-टाइम कतार विवरण, संग्रह प्रगति और अपनी स्लॉट स्थिति देखने के लिए एक मंडी और अनाज चुनें।",
+                stat_3: "फसल के लंबे इंतजार के कारण MSP से 20% नीचे डिस्ट्रेस सेलिंग आम है — अपनी स्थिति यहां ट्रैक करें।",
+                stat_4: "भारत सालाना फसल कटाई के बाद के कृषि कचरे में ₹44,000 करोड़ से अधिक का नुकसान उठाता है।",
+                
+                crop_wheat: "गेहूँ", crop_rice: "चावल (धान)", crop_maize: "मक्का", crop_cotton: "कपास", crop_sugarcane: "गन्ना",
+                crop_wheat_code: "गेहूँ (WHT)", crop_rice_code: "चावल - धान (RIC)", crop_maize_code: "मक्का (MAI)", crop_cotton_code: "कपास (COT)", crop_sugarcane_code: "गन्ना (SUG)",
+
+                admin_login_title: "एडमिन पोर्टल लॉगिन",
+                admin_id_label: "एडमिन आईडी",
+                admin_id_placeholder: "उदा., ADM-1001",
+                admin_username_label: "यूज़रनेम",
+                admin_username_placeholder: "उदा., priya.admin",
+                admin_pass_label: "पासवर्ड",
+                btn_admin_login: "सुरक्षित लॉगिन",
+                admin_title: "सिस्टम एडमिनिस्ट्रेशन",
+                add_centre_title: "खरीद केंद्र जोड़ें",
+                centre_name_label: "केंद्र का नाम",
+                centre_name_placeholder: "उदा., APMC मंडी चरण 2",
+                loc_label: "स्थान/जिला",
+                loc_placeholder: "उदा., लखनऊ",
+                cap_label: "दैनिक क्षमता (क्विंटल)",
+                cap_placeholder: "उदा., 5000",
+                btn_add_centre: "केंद्र जोड़ें",
+                open_slots_title: "बुकिंग स्लॉट खोलें",
+                select_centre_admin: "केंद्र चुनें",
+                date_label: "तिथि",
+                time_label: "समय सीमा",
+                btn_open_slot: "स्लॉट खोलें",
+                update_status_title: "बैच स्थिति अपडेट करें",
+                batch_id_label: "बैच आईडी",
+                batch_id_placeholder: "उदा., B-1042",
+                new_status_label: "नई स्थिति",
+                btn_update_status: "स्थिति अपडेट करें",
+                record_payment_title: "भुगतान दर्ज करें",
+                amount_label: "राशि (₹)",
+                amount_placeholder: "उदा., 45000",
+                utr_label: "लेनदेन संदर्भ / UTR",
+                utr_placeholder: "उदा., UBIN000...",
+                btn_mark_paid: "भुगतान के रूप में चिह्नित करें",
+                admin_table_title: "केंद्र लोड और सक्रिय स्लॉट",
+                all_centres: "सभी केंद्र",
+                th_centre: "केंद्र", th_date: "तिथि", th_time: "समय सीमा", th_booked: "बुक किया गया / अधिकतम", th_status: "स्थिति",
+                
+                total_in_queue: "कतार में कुल",
+                current_serving_pos: "वर्तमान सेवा स्थिति",
+                your_position: "आपकी स्थिति",
+                crop_status: "फसल की स्थिति",
+                today_progress: "आज की संग्रह प्रगति",
+                payments_pending: "लंबित भुगतान",
+                status_submitted: "जमा किया गया", status_scheduled: "निर्धारित", status_in_queue: "कतार में", status_completed: "पूरा हुआ", status_paid: "भुगतान किया गया", status_pending: "लंबित", status_cancelled: "रद्द किया गया",
+                status_full: "पूर्ण", status_available: "उपलब्ध",
+                opt_submitted: "जमा किया गया (शेड्यूल की प्रतीक्षा)", opt_scheduled: "निर्धारित (स्लॉट कन्फर्म)", opt_in_queue: "कतार में (केंद्र पर पहुंचे)", opt_completed: "पूरा हुआ (खरीद लिया गया)",
+                
+                toast_reg_success: "पंजीकरण विवरण जमा किया गया। कृपया लॉगिन करें।",
+                toast_book_success: "स्लॉट बुकिंग अनुरोध सफलतापूर्वक जमा किया गया!",
+                toast_centre_added: "नया खरीद केंद्र ({name}) सफलतापूर्वक जोड़ा गया।",
+                toast_invalid_centre: "अमान्य केंद्र चुना गया।",
+                toast_slot_opened: "{name} के लिए नए बुकिंग स्लॉट खोले गए।",
+                toast_batch_updated: "बैच {id} की स्थिति सफलतापूर्वक '{status}' में अपडेट की गई।",
+                toast_batch_not_found: "त्रुटि: बैच आईडी {id} सिस्टम में नहीं मिला।",
+                toast_batch_not_completed: "त्रुटि: भुगतान से पहले बैच {id} 'पूरा हुआ' होना चाहिए। वर्तमान स्थिति: {status}।",
+                toast_payment_recorded: "बैच {id} के लिए ₹{amount} का भुगतान दर्ज किया गया।",
+                toast_slot_cancelled: "बुकिंग {id} रद्द कर दी गई है।",
+                
+                confirm_cancel_msg: "क्या आप वाकई इस स्लॉट को रद्द करना चाहते हैं?",
+                btn_yes: "हाँ, रद्द करें",
+                btn_no: "नहीं",
+                cancel_slot: "स्लॉट रद्द करें",
+                
+                Today: "आज", Tomorrow: "कल",
+                
+                step_submitted: "जमा किया", step_scheduled: "निर्धारित", step_inqueue: "कतार में", step_procured: "खरीदा गया"
+            }
+        };
+
+        // ... existing dummy data generation logic ...
+        let dummyCentres = [
+            { id: 'C001', name: 'APMC Mandi, Lucknow North', location: 'Lucknow', capacity: 500 },
+            { id: 'C002', name: 'FCI Godown, Kanpur Road', location: 'Kanpur', capacity: 1000 },
+            { id: 'C003', name: 'State Warehouse, Barabanki', location: 'Barabanki', capacity: 800 }
+        ];
+
+        let dummyBatches = [
+            { id: 'B-1042', crop: 'Wheat', qty: '50 Qtl', centre: 'APMC Mandi, Lucknow North', datetime: '2023-11-15 | 08:00 AM', status: 'completed', queue: '-' },
+            { id: 'B-1055', crop: 'Wheat', qty: '30 Qtl', centre: 'APMC Mandi, Lucknow North', datetime: '2023-11-16 | 10:00 AM', status: 'paid', queue: '-' },
+            { id: 'B-1089', crop: 'Rice', qty: '80 Qtl', centre: 'FCI Godown, Kanpur Road', datetime: 'Tomorrow | 09:00 AM', status: 'scheduled', queue: '14' },
+            { id: 'B-1092', crop: 'Rice', qty: '20 Qtl', centre: 'FCI Godown, Kanpur Road', datetime: 'Tomorrow | 09:00 AM', status: 'in_queue', queue: '3' },
+            { id: 'B-1105', crop: 'Maize', qty: '40 Qtl', centre: 'Pending Assignment', datetime: 'Requested: Next Week', status: 'submitted', queue: '-' },
+        ];
+
+        let dummySlots = [];
+        const generateDummySlots = () => {
+            const cropsList = ['Wheat', 'Rice', 'Maize', 'Cotton', 'Sugarcane'];
+            dummyCentres.forEach(centre => {
+                cropsList.forEach(crop => {
+                    const maxVal = Math.floor(Math.random() * 500) + 200; 
+                    const bookedVal = Math.floor((Math.random() * 0.7 + 0.2) * maxVal); 
+                    dummySlots.push({
+                        centre: centre.name,
+                        crop: crop,
+                        date: 'Today',
+                        time: `08:00 AM - 04:00 PM (${crop})`,
+                        booked: bookedVal,
+                        max: maxVal
+                    });
+                });
+            });
+        };
+        generateDummySlots();
+
+        function t(key, replacements = {}) {
+            let str = translations[currentLang][key] || translations['en'][key] || key;
+            for (let k in replacements) {
+                str = str.replace(`{${k}}`, replacements[k]);
+            }
+            return str;
+        }
+
+        function selectLanguage(lang) {
+            currentLang = lang;
+            hasSelectedLang = true;
+            document.getElementById('lang-selection-wrapper').classList.add('hidden-view');
+            document.getElementById('farmer-auth-wrapper').classList.remove('hidden-view');
+            applyLanguage();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            document.getElementById('lang-toggle-text').textContent = currentLang === 'en' ? 'EN / हिं' : 'हिं / EN';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(t(key) !== key) {
+                    el.innerHTML = t(key);
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(t(key) !== key) {
+                    el.placeholder = t(key);
+                }
+            });
+
+            renderCentreDropdowns();
+            renderQueueDetails();
+            renderAdminSlots();
+            refreshIcons();
+        }
+
+        function showToast(messageKey, replacements = {}, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            const borderColor = type === 'success' ? '#48ba78' : '#ef4444';
+            
+            const msg = t(messageKey, replacements);
+            
+            toast.style.borderLeft = `4px solid ${borderColor}`;
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 flex-shrink-0" style="color: ${borderColor};"></i> <div class="font-medium">${msg}</div>`;
+            container.appendChild(toast);
+            refreshIcons();
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('book-date').min = today;
+            applyLanguage();
+            refreshIcons();
+        });
+
+        function renderCentreDropdowns() {
+            const dropdowns = [
+                { id: 'book-centre', defaultTextKey: 'select_centre' },
+                { id: 'lookup-centre', defaultTextKey: 'select_centre' },
+                { id: 'admin-slot-centre', defaultTextKey: 'select_centre_admin' },
+                { id: 'admin-filter-centre', defaultTextKey: 'all_centres', defaultValue: 'all' }
+            ];
+
+            dropdowns.forEach(dropdown => {
+                const el = document.getElementById(dropdown.id);
+                if (!el) return;
+                
+                const currentVal = el.value;
+                let html = `<option value="${dropdown.defaultValue || ''}">${t(dropdown.defaultTextKey)}</option>`;
+                
+                dummyCentres.forEach(c => {
+                    html += `<option value="${c.id}">${c.name}</option>`;
+                });
+                
+                el.innerHTML = html;
+                if (currentVal && Array.from(el.options).some(opt => opt.value === currentVal)) {
+                    el.value = currentVal;
+                }
+            });
+        }
+
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('btn-farmer-view').classList.toggle('active', view === 'farmer');
+            document.getElementById('btn-admin-view').classList.toggle('active', view === 'admin');
+
+            const farmerSection = document.getElementById('view-farmer');
+            const adminSection = document.getElementById('view-admin');
+
+            if (view === 'farmer') {
+                farmerSection.classList.remove('hidden-view');
+                adminSection.classList.add('hidden-view');
+            } else {
+                farmerSection.classList.add('hidden-view');
+                adminSection.classList.remove('hidden-view');
+                
+                if (isAdminLoggedIn) {
+                    document.getElementById('admin-auth-wrapper').classList.add('hidden-view');
+                    document.getElementById('admin-dashboard').classList.remove('hidden-view');
+                } else {
+                    document.getElementById('admin-auth-wrapper').classList.remove('hidden-view');
+                    document.getElementById('admin-dashboard').classList.add('hidden-view');
+                }
+            }
+        }
+
+        function toggleAuth(tab) {
+            const loginBtn = document.getElementById('tab-login');
+            const registerBtn = document.getElementById('tab-register');
+            const loginForm = document.getElementById('form-login');
+            const registerForm = document.getElementById('form-register');
+            const indicator = document.getElementById('tab-indicator');
+
+            if (tab === 'login') {
+                loginBtn.classList.add('active');
+                registerBtn.classList.remove('active');
+                indicator.style.transform = 'translateX(0)';
+                loginForm.classList.remove('hidden-view');
+                registerForm.classList.add('hidden-view');
+            } else {
+                registerBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                indicator.style.transform = 'translateX(100%)';
+                registerForm.classList.remove('hidden-view');
+                loginForm.classList.add('hidden-view');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('login-name').value;
+            if (nameInput) {
+                document.getElementById('farmer-name-display').innerText = nameInput;
+            }
+            document.getElementById('farmer-auth-wrapper').classList.add('hidden-view');
+            document.getElementById('farmer-dashboard').classList.remove('hidden-view');
+            isLoggedIn = true;
+            refreshIcons();
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            showToast('toast_reg_success');
+            toggleAuth('login');
+        }
+
+        function handleLogout() {
+            document.getElementById('farmer-auth-wrapper').classList.remove('hidden-view');
+            document.getElementById('farmer-dashboard').classList.add('hidden-view');
+            isLoggedIn = false;
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            isAdminLoggedIn = true;
+            document.getElementById('admin-auth-wrapper').classList.add('hidden-view');
+            document.getElementById('admin-dashboard').classList.remove('hidden-view');
+            refreshIcons();
+        }
+
+        function handleAdminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-auth-wrapper').classList.remove('hidden-view');
+            document.getElementById('admin-dashboard').classList.add('hidden-view');
+        }
+
+        function handleBookSlot(e) {
+            e.preventDefault();
+            const crop = document.getElementById('book-crop').value;
+            const centreSelect = document.getElementById('book-centre');
+            const centreText = centreSelect.options[centreSelect.selectedIndex].text;
+            const bookDate = document.getElementById('book-date').value;
+
+            const queueCount = dummyBatches.filter(b => 
+                b.centre === centreText && 
+                ['submitted', 'scheduled', 'in_queue'].includes(b.status)
+            ).length;
+
+            const newBatch = {
+                id: 'B-' + Math.floor(Math.random() * 9000 + 1000),
+                crop: crop,
+                qty: e.target.elements[2].value + ' Qtl',
+                centre: centreText,
+                datetime: bookDate,
+                status: 'in_queue',
+                queue: queueCount + 1,
+                isMine: true
+            };
+
+            dummyBatches.unshift(newBatch);
+            
+            document.getElementById('lookup-centre').value = centreSelect.value;
+            document.getElementById('lookup-crop').value = crop;
+            renderQueueDetails();
+
+            e.target.reset();
+            showToast('toast_book_success');
+        }
+
+        function getStatusHtml(status) {
+            const statusMap = {
+                'submitted': { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200', icon: 'file-text', textKey: 'status_submitted' },
+                'scheduled': { bg: 'bg-gold-50', text: 'text-gold-700', border: 'border-gold-200', icon: 'calendar-clock', textKey: 'status_scheduled' },
+                'in_queue': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: 'users', textKey: 'status_in_queue' },
+                'completed': { bg: 'bg-forest-50', text: 'text-forest-700', border: 'border-forest-200', icon: 'check-circle-2', textKey: 'status_completed' },
+                'paid': { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300', icon: 'indian-rupee', textKey: 'status_paid' },
+                'pending': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: 'clock', textKey: 'status_pending' },
+                'cancelled': { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-300 border-dashed', icon: 'x-circle', textKey: 'status_cancelled' }
+            };
+            const s = statusMap[status] || statusMap['submitted'];
+            return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider border ${s.bg} ${s.text} ${s.border}">
+                <i data-lucide="${s.icon}" class="w-3.5 h-3.5"></i> ${t(s.textKey)}
+            </span>`;
+        }
+
+        let batchToCancel = null;
+        function showCancelConfirm(batchId) {
+            batchToCancel = batchId;
+            document.getElementById('cancel-modal').classList.remove('hidden-view');
+            document.getElementById('btn-confirm-cancel').onclick = () => {
+                handleCancelSlot(batchToCancel);
+                hideCancelConfirm();
+            };
+        }
+
+        function hideCancelConfirm() {
+            batchToCancel = null;
+            document.getElementById('cancel-modal').classList.add('hidden-view');
+        }
+
+        function handleCancelSlot(batchId) {
+            const batchIndex = dummyBatches.findIndex(b => b.id === batchId);
+            if (batchIndex > -1) {
+                dummyBatches[batchIndex].status = 'cancelled';
+                dummyBatches[batchIndex].queue = '-';
+                renderQueueDetails();
+                showToast('toast_slot_cancelled', {id: batchId});
+            }
+        }
+
+        function renderQueueDetails() {
+            const centreSelect = document.getElementById('lookup-centre');
+            const cropSelect = document.getElementById('lookup-crop');
+            
+            const centreText = centreSelect.options[centreSelect.selectedIndex]?.text;
+            const cropCode = cropSelect.value;
+            const resultsDiv = document.getElementById('lookup-results');
+            const emptyDiv = document.getElementById('lookup-empty');
+            
+            if (!resultsDiv || !emptyDiv) return;
+
+            if (!centreSelect.value || !cropSelect.value) {
+                resultsDiv.classList.add('hidden');
+                emptyDiv.classList.remove('hidden');
+                return;
+            }
+
+            const matchBatches = dummyBatches.filter(b => b.centre === centreText && b.crop === cropCode);
+            const queueBatches = matchBatches.filter(b => ['submitted', 'scheduled', 'in_queue'].includes(b.status));
+            const totalInQueue = queueBatches.length;
+            
+            let currentQueuePos = '-';
+            const activeQueues = queueBatches.map(b => parseInt(b.queue)).filter(q => !isNaN(q));
+            if (activeQueues.length > 0) currentQueuePos = Math.min(...activeQueues);
+            
+            const myBatches = matchBatches.filter(b => b.isMine !== undefined ? b.isMine : (b.id === 'B-1055' || b.id === 'B-1089'));
+            const myBatch = myBatches.length > 0 ? myBatches[0] : (matchBatches.length > 0 ? matchBatches[0] : null); 
+            
+            const pendingPayments = matchBatches.filter(b => b.status === 'completed').length;
+            
+            const todaySlots = dummySlots.filter(s => s.centre === centreText && s.crop === cropCode && (s.date === 'Today' || s.date.includes('20')));
+            let todayBooked = 0, todayMax = 0;
+            todaySlots.forEach(s => { todayBooked += parseInt(s.booked) || 0; todayMax += parseInt(s.max) || 0; });
+            
+            let progressHtml = '';
+            if (todayMax > 0) {
+                const pct = Math.min(100, (todayBooked / todayMax) * 100);
+                const isFull = todayBooked >= todayMax;
+                progressHtml = `
+                    <div class="mt-2">
+                        <div class="flex justify-between text-xs mb-1.5 font-semibold text-gray-600">
+                            <span>${t('qty_collected_today', {booked: todayBooked, max: todayMax})}</span>
+                            <span class="${isFull ? 'text-red-500' : 'text-forest-600'}">${Math.round(pct)}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden border border-gray-200">
+                            <div class="h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-forest-500'}" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                progressHtml = `<p class="text-xs font-medium text-gray-400 mt-2 italic flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${t('no_collection_today')}</p>`;
+            }
+
+            if (!myBatch) {
+                emptyDiv.classList.remove('hidden');
+                resultsDiv.classList.add('hidden');
+                emptyDiv.innerHTML = `
+                    <div class="w-20 h-20 bg-forest-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="leaf" class="w-10 h-10 text-forest-300"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">${t('not_booked_yet', {centre: centreText, crop: cropSelect.options[cropSelect.selectedIndex].text})}</p>
+                    <p class="text-gray-500 text-sm mt-3 border-t border-gray-200 pt-3">${t('book_one_left')}</p>
+                `;
+                refreshIcons();
+            } else {
+                emptyDiv.classList.add('hidden');
+                resultsDiv.classList.remove('hidden');
+                
+                let myPaymentStatus = 'submitted';
+                if (myBatch.status === 'paid') myPaymentStatus = 'paid';
+                else if (myBatch.status === 'completed') myPaymentStatus = 'pending';
+                
+                // Stepper Logic
+                let currentStep = 1;
+                if (['scheduled'].includes(myBatch.status)) currentStep = 2;
+                if (['in_queue'].includes(myBatch.status)) currentStep = 3;
+                if (['completed', 'paid'].includes(myBatch.status)) currentStep = 4;
+                if (myBatch.status === 'cancelled') currentStep = 0; // hide progress
+
+                let progressWidth = (currentStep > 0) ? (currentStep - 1) * 33.33 : 0;
+                let stepNames = [t('step_submitted'), t('step_scheduled'), t('step_inqueue'), t('step_procured')];
+                
+                let stepperHtml = '';
+                if (currentStep > 0) {
+                    stepperHtml = `
+                    <div class="px-4 py-6 bg-white border border-gray-100 rounded-xl shadow-sm mb-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-6 text-center">Procurement Progress</p>
+                        <div class="flex items-center justify-between relative z-0 mx-2 md:mx-6">
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-gray-100 -z-10 rounded-full"></div>
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-forest-500 -z-10 rounded-full transition-all duration-700 ease-out" style="width: ${progressWidth}%"></div>
+                            ${[1,2,3,4].map(step => `
+                               <div class="flex flex-col items-center gap-2">
+                                   <div class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm md:text-base transition-colors duration-300 ${currentStep >= step ? 'bg-forest-500 text-white shadow-md shadow-forest-500/30' : 'bg-white text-gray-300'} border-4 ${currentStep >= step ? 'border-forest-100' : 'border-gray-100'}">
+                                       ${currentStep > step ? '<i data-lucide="check" class="w-4 h-4 md:w-5 md:h-5"></i>' : step}
+                                   </div>
+                                   <span class="text-[9px] md:text-xs font-bold ${currentStep >= step ? 'text-forest-700' : 'text-gray-400'} uppercase tracking-wider text-center max-w-[60px]">${stepNames[step-1]}</span>
+                               </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    `;
+                }
+
+                resultsDiv.innerHTML = `
+                    ${stepperHtml}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl shadow-sm border border-blue-100 col-span-2 flex justify-between items-center relative overflow-hidden">
+                            <i data-lucide="users" class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-500 opacity-5 pointer-events-none"></i>
+                            <div>
+                                <p class="text-xs text-blue-800 uppercase tracking-wider font-bold mb-1">${t('your_position')}</p>
+                                <p class="text-4xl font-black text-blue-900 drop-shadow-sm font-poppins">${myBatch.queue !== '-' ? myBatch.queue : 'N/A'}</p>
+                            </div>
+                            <div class="text-right flex flex-col items-end z-10">
+                                <p class="text-xs text-blue-800 font-bold mb-2 uppercase tracking-wider">${t('crop_status')}</p>
+                                ${getStatusHtml(myBatch.status)}
+                                ${['submitted', 'scheduled', 'in_queue'].includes(myBatch.status) ? 
+                                    `<button onclick="showCancelConfirm('${myBatch.id}')" class="mt-3 px-3 py-1.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all shadow-sm flex items-center gap-1"><i data-lucide="x" class="w-3.5 h-3.5"></i> ${t('cancel_slot')}</button>` 
+                                : ''}
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-1">${t('total_in_queue')}</p>
+                            <p class="text-2xl font-bold text-gray-800 font-poppins">${totalInQueue}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-1">${t('current_serving_pos')}</p>
+                            <p class="text-2xl font-bold text-blue-600 font-poppins">${currentQueuePos}</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 col-span-2">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">${t('today_progress')}</p>
+                            ${progressHtml}
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">${t('payments_pending')}</p>
+                            <p class="text-2xl font-bold text-red-500 font-poppins">${pendingPayments}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between items-start">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">${t('your_payment')}</p>
+                            ${getStatusHtml(myPaymentStatus)}
+                        </div>
+                    </div>
+                `;
+                refreshIcons();
+            }
+        }
+
+        function handleAddCentre(e) {
+            e.preventDefault();
+            const name = e.target.elements[0].value;
+            const location = e.target.elements[1].value;
+            const capacity = parseInt(e.target.elements[2].value);
+
+            const newId = 'C' + String(dummyCentres.length + 1).padStart(3, '0');
+            dummyCentres.push({ id: newId, name, location, capacity });
+            
+            renderCentreDropdowns();
+            showToast('toast_centre_added', {name: name});
+            e.target.reset();
+        }
+
+        function handleAddSlot(e) {
+            e.preventDefault();
+            const centreId = document.getElementById('admin-slot-centre').value;
+            const date = e.target.elements[1].value;
+            const time = e.target.elements[2].value;
+            const centre = dummyCentres.find(c => c.id === centreId);
+            
+            if (!centre) {
+                showToast('toast_invalid_centre', {}, 'error');
+                return;
+            }
+
+            dummySlots.push({ centre: centre.name, date: date, time: time, booked: 0, max: centre.capacity || 500 });
+            renderAdminSlots();
+            showToast('toast_slot_opened', {name: centre.name});
+            e.target.reset();
+        }
+
+        function handleUpdateStatus(e) {
+            e.preventDefault();
+            const id = document.getElementById('update-batch-id').value;
+            const status = document.getElementById('update-status-val').value;
+            const batchIndex = dummyBatches.findIndex(b => b.id === id);
+            
+            if (batchIndex > -1) {
+                dummyBatches[batchIndex].status = status;
+                if (status === 'in_queue') {
+                    const inQueueCount = dummyBatches.filter(b => b.centre === dummyBatches[batchIndex].centre && b.status === 'in_queue').length;
+                    dummyBatches[batchIndex].queue = inQueueCount > 0 ? inQueueCount + 1 : Math.floor(Math.random() * 10) + 1;
+                } else if (['completed', 'paid', 'submitted'].includes(status)) {
+                    dummyBatches[batchIndex].queue = '-';
+                }
+                renderQueueDetails();
+                showToast('toast_batch_updated', {id: id, status: t('opt_' + status).split(' (')[0]});
+                e.target.reset();
+            } else {
+                showToast('toast_batch_not_found', {id: id}, 'error');
+            }
+        }
+
+        function handleRecordPayment(e) {
+            e.preventDefault();
+            const farmerName = document.getElementById('pay-farmer-name').value;
+            const farmerId = document.getElementById('pay-farmer-id').value;
+            const aadhaar = document.getElementById('pay-aadhaar').value;
+            const id = document.getElementById('pay-batch-id').value;
+            const amount = document.getElementById('pay-amount').value;
+            const utr = document.getElementById('pay-utr').value;
+            
+            const batchIndex = dummyBatches.findIndex(b => b.id === id);
+            
+            if (batchIndex === -1) {
+                showToast('toast_batch_not_found', {id: id}, 'error');
+                return;
+            }
+            if (dummyBatches[batchIndex].status !== 'completed') {
+                showToast('toast_batch_not_completed', {id: id, status: t('status_'+dummyBatches[batchIndex].status)}, 'error');
+                return;
+            }
+            
+            dummyBatches[batchIndex].status = 'paid';
+            dummyBatches[batchIndex].paymentAmount = amount;
+            dummyBatches[batchIndex].paymentRef = utr;
+            dummyBatches[batchIndex].farmerName = farmerName;
+            dummyBatches[batchIndex].farmerId = farmerId;
+            dummyBatches[batchIndex].aadhaarNumber = aadhaar;
+            
+            renderQueueDetails();
+            showToast('toast_payment_recorded', {amount: amount, id: id});
+            e.target.reset();
+        }
+
+        function renderAdminSlots() {
+            const tbody = document.getElementById('admin-slots-body');
+            tbody.innerHTML = '';
+            
+            const filterEl = document.getElementById('admin-filter-centre');
+            const filterId = filterEl ? filterEl.value : 'all';
+            let filterName = 'all';
+            if (filterId !== 'all') {
+                const centre = dummyCentres.find(c => c.id === filterId);
+                if (centre) filterName = centre.name;
+            }
+
+            const slotsToRender = filterName === 'all' ? dummySlots : dummySlots.filter(s => s.centre === filterName);
+
+            slotsToRender.forEach(slot => {
+                const isFull = slot.booked >= slot.max;
+                const pct = slot.max > 0 ? (slot.booked / slot.max) * 100 : 0;
+                
+                const displayDate = t(slot.date) !== slot.date ? t(slot.date) : slot.date;
+                const statusText = isFull ? t('status_full') : t('status_available');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-gray-900 font-medium">${slot.centre}</td>
+                    <td class="text-gray-600">${displayDate}</td>
+                    <td class="text-gray-600">${slot.time}</td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <span class="text-gray-900 font-bold min-w-[50px]">${slot.booked} / ${slot.max}</span>
+                            <div class="w-24 bg-gray-100 rounded-full h-2.5 overflow-hidden border border-gray-200">
+                                <div class="h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-forest-500'}" style="width: ${Math.min(100, pct)}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isFull ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200'}">
+                            <i data-lucide="${isFull ? 'alert-circle' : 'check-circle-2'}" class="w-3.5 h-3.5"></i>
+                            ${statusText}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            refreshIcons();
+        }
+    </script>
+</body>
+</html>
